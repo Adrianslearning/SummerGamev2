@@ -1,0 +1,71 @@
+import com.sun.tools.javac.Main
+
+plugins {
+    id 'java-library'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+javafx {
+    version = "21.0.2"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.base', 'javafx.media']
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
+
+    implementation 'org.openjfx:javafx-controls:21.0.2'
+
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.23.1'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+run {
+    standardInput = System.in
+}
+
+/*
+The following block adds both compile and runtime dependencies to the jar
+ */
+jar {
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+                'Main-Class': Main,
+                'Multi-Release': 'true'
+        )
+    }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+tasks.register("build-cs108") {
+    group = 'application'
+    description = 'Assembles an executable jar and generates Javadoc documentation.'
+    dependsOn 'jar'
+    dependsOn 'javadoc'
+}
